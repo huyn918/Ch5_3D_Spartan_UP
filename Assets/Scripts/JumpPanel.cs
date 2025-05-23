@@ -9,7 +9,7 @@ public class JumpPanel : MonoBehaviour
     {
         if (collision.gameObject.layer == 6)
         {
-            CharacterManager.Instance.Player.controller.Player_rigidbody
+            CharacterManager.Instance.Player.controller.player_Rigidbody
                 .AddForce(Vector2.up * jumpPanelPower, ForceMode.Impulse);
         }
     }

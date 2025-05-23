@@ -43,7 +43,6 @@ public class UIInventory : MonoBehaviour
         for (int i = 0; i < slots.Length; i++)
         {
             slots[i] = slotPanel.GetChild(i).GetComponent<ItemSlot>();
-            Debug.Log($"{i+1}번째 슬롯 생성 완료");
             slots[i].index = i;
             slots[i].inventory = this;
             slots[i].Clear();
@@ -154,14 +153,12 @@ public class UIInventory : MonoBehaviour
         return null;
     }
 
-    // Player 스크립트 먼저 수정
     public void ThrowItem(ItemData data)
     {
         Instantiate(data.dropPrefab, dropPosition.position, Quaternion.Euler(Vector3.one * Random.value * 360));
     }
 
 
-    // ItemSlot 스크립트 먼저 수정
     public void SelectItem(int index)
     {
         if (slots[index].item == null) return;

@@ -25,13 +25,19 @@ public class PlayerController : MonoBehaviour
 
     public bool canLook = true;
 
-    public Rigidbody Player_rigidbody;
+    public Rigidbody player_Rigidbody;
+    public Collider player_Collider;
     public Action inventory;
 
+    [SerializeField]
+    private PhysicMaterial noFriction;
+    [SerializeField]
+    private PhysicMaterial defaultFrction;
 
     private void Awake()
     {
-        Player_rigidbody = GetComponent<Rigidbody>();
+        player_Rigidbody = GetComponent<Rigidbody>();
+        player_Collider = GetComponent<Collider>();
     }
 
     void Start()
@@ -42,6 +48,7 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         
+      
     }
     private void FixedUpdate()
     {
@@ -66,10 +73,16 @@ public class PlayerController : MonoBehaviour
         if (context.phase == InputActionPhase.Performed)
         {
             curMovementInput = context.ReadValue<Vector2>();
+
+            player_Collider.material.staticFriction = 0f;
+            player_Collider.material.dynamicFriction = 0f;
         }
         else if (context.phase == InputActionPhase.Canceled)
         {
             curMovementInput = Vector2.zero;
+            player_Collider.material.staticFriction = 0.5f;
+            player_Collider.material.dynamicFriction = 0.3f;
+            Debug.Log("입력 중지");
         }
     }
     
@@ -77,7 +90,7 @@ public class PlayerController : MonoBehaviour
     {
         if (context.phase == InputActionPhase.Started && IsGrounded())
         {
-            Player_rigidbody.AddForce(Vector2.up * jumpPower, ForceMode.Impulse);
+            player_Rigidbody.AddForce(Vector2.up * jumpPower, ForceMode.Impulse);
             CharacterManager.Instance.Player.condition.UseStamina(jumpStaminaUse);
             Debug.Log("점프 입력됨");
         }
@@ -104,12 +117,14 @@ public class PlayerController : MonoBehaviour
         moveDir.Normalize(); // 대각선 속도 균일화
 
         // 현재 수평 속도만 고려
-        Vector3 horizontalVelocity = new Vector3(Player_rigidbody.velocity.x, 0, Player_rigidbody.velocity.z);
-
-        // 속도가 최대치에 도달하면 방향키로 가속하지 않게
-        if (horizontalVelocity.magnitude < maxSpeed)
+        Vector3 horizontalVelocity = new Vector3(player_Rigidbody.velocity.x, 0, player_Rigidbody.velocity.z);
+        
+        player_Rigidbody.AddForce(moveDir * acceleration, ForceMode.Acceleration);
+        // 수평속도가 최대치에 도달하면 방향키로 가속하지 않게, 대신 y축 속도는 노터치
+        if (horizontalVelocity.magnitude > maxSpeed)
         {
-            Player_rigidbody.AddForce(moveDir * acceleration, ForceMode.Acceleration);
+            horizontalVelocity = horizontalVelocity.normalized * maxSpeed;
+            player_Rigidbody.velocity = new Vector3(horizontalVelocity.x, player_Rigidbody.velocity.y, horizontalVelocity.z);
         }
     }
 
