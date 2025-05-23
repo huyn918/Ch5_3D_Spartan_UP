@@ -82,7 +82,7 @@ public class PlayerController : MonoBehaviour
             curMovementInput = Vector2.zero;
             player_Collider.material.staticFriction = 0.5f;
             player_Collider.material.dynamicFriction = 0.3f;
-            Debug.Log("입력 중지");
+            //Debug.Log("입력 중지");
         }
     }
     
