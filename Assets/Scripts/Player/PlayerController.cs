@@ -120,7 +120,7 @@ public class PlayerController : MonoBehaviour
         Vector3 horizontalVelocity = new Vector3(player_Rigidbody.velocity.x, 0, player_Rigidbody.velocity.z);
         
         player_Rigidbody.AddForce(moveDir * acceleration, ForceMode.Acceleration);
-        // 수평속도가 최대치에 도달하면 방향키로 가속하지 않게, 대신 y축 속도는 노터치
+        // 수평속도가 최대치에 도달하면 최대속도보다 빨라지지 않도록 클램핑, 대신 y축 속도는 노터치
         if (horizontalVelocity.magnitude > maxSpeed)
         {
             horizontalVelocity = horizontalVelocity.normalized * maxSpeed;
