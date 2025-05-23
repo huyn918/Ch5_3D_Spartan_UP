@@ -13,7 +13,7 @@ public class PlayerController : MonoBehaviour
     public float jumpPower;
     public int jumpStaminaUse;
     public LayerMask groundLayerMask;
-
+    private Coroutine walksound;
     [Header("Look")]
     public Transform cameraContainer;
     public float minXLook;
@@ -70,6 +70,7 @@ public class PlayerController : MonoBehaviour
 
     public void OnMoveInput(InputAction.CallbackContext context)
     {
+       
         if (context.phase == InputActionPhase.Performed)
         {
             curMovementInput = context.ReadValue<Vector2>();
@@ -126,6 +127,7 @@ public class PlayerController : MonoBehaviour
             horizontalVelocity = horizontalVelocity.normalized * maxSpeed;
             player_Rigidbody.velocity = new Vector3(horizontalVelocity.x, player_Rigidbody.velocity.y, horizontalVelocity.z);
         }
+        WalkingSoundOnorOFF();
     }
 
     void CameraLook()
@@ -165,6 +167,47 @@ public class PlayerController : MonoBehaviour
     {
         Cursor.lockState = toggle ? CursorLockMode.None : CursorLockMode.Locked;
         canLook = !toggle;
+    }
+
+
+    private void WalkingSoundOnorOFF()
+    {
+        //발소리 나는 조건 : 땅에서(isGround) && 걷고 있음(속도 0.05 이상)
+        if (player_Rigidbody.velocity.magnitude >= 0.05f && walksound == null)
+            // 빠르면서 실행중인 코루틴이 없는 경우
+        {
+            walksound = null;
+            walksound = StartCoroutine(WalkingSoundPlay());
+            Debug.Log("발소리 시작");
+        }
+        else if (player_Rigidbody.velocity.magnitude < 0.05f && walksound != null)
+            // 느리면서 코루틴이 실행 중인 경우
+        {
+            StopAllCoroutines();
+            walksound = null;
+            Debug.Log("모든 코루틴 중지");
+        }
+        else if (!IsGrounded() && walksound != null)
+            // 공중에 있으면서 코루틴이 실행 중인 경우
+        {
+            StopAllCoroutines();
+            walksound = null;
+            Debug.Log("모든 코루틴 중지2");
+        }
+    }
+    private IEnumerator WalkingSoundPlay()
+    {
+        while (true)
+        {
+            if (player_Rigidbody.velocity.magnitude < 0.05f || !IsGrounded())
+            {
+                Debug.Log("코루틴 탈출");
+                break;
+            }
+            int randomIndex = UnityEngine.Random.Range(0, 5); // 걷기 등록한 5가지 소리
+            AudioManager.Instance.PlaySFX(randomIndex, 0.2f);
+            yield return new WaitForSeconds(0.5f); // 0.5초에 한번씩 체크
+        }
     }
 
 
